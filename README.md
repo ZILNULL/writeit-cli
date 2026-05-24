@@ -11,6 +11,7 @@ At the very core, this tool is just vim-like text editor with a couple of extra 
 ### Built With 
 
 - Python
+- Textual
 
 ## Getting Started 
 
@@ -45,4 +46,4 @@ Thank you to the following resources for helping make this project a reality.
 
 - https://www.boot.dev/ for helping me get off my ass and make a project.
 - https://github.com/othneildrew/Best-README-Template for the minimal README template.
-
+- https://github.com/textualize/textual for the awesome Python TUI toolset.
