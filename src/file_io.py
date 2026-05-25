@@ -1,17 +1,20 @@
-import sys
 import os
 from datetime import datetime
 
 
-def write_to_file(text: str) -> str:
+def write_to_file(text: str, filename: str | None = None) -> str:
     try:
         os.makedirs("content", exist_ok=True)
-        file_name = datetime.today().strftime("%Y-%m-%d_%H:%M:%S")
-        file_name = os.path.join("content", file_name)
+        filename_base = (
+            datetime.today().strftime("%Y-%m-%d_%H:%M:%S") + ".md"
+            if filename is None
+            else filename
+        )
+        filename = os.path.join("content", filename_base)
 
-        with open(file_name, "w") as f:
+        with open(filename, "w") as f:
             f.write(text)
 
-        return file_name
+        return filename_base
     except Exception as e:
-        sys.exit(1)
+        raise Exception(e)

@@ -7,9 +7,10 @@ class TextAreaExt(TextArea):
         Binding("tab", "insert_tab"),
     ]
 
-    def __init__(self, id: str | None = None):
+    def __init__(self, id: str | None = None, filename: str | None = None):
         super().__init__(id=id)
         self.language = "markdown"
+        self.filename = filename
 
     def action_insert_tab(self) -> None:
         if not self.read_only:
