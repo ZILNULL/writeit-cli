@@ -1,3 +1,4 @@
+import sys
 from textual.app import App, ComposeResult
 
 from src.editor import Editor
@@ -20,3 +21,4 @@ class MyApp(App):
 if __name__ == "__main__":
     app = MyApp()
     app.run()
+    sys.exit(app.return_code)

@@ -78,7 +78,7 @@ class Editor(Widget, can_focus=True):
         command = self.editor_footer.command_input.value
         match command:
             case "q":
-                sys.exit(0)
+                self.app.exit(return_code=0)
             case "w":
                 self.editor_footer.command_input.value = ""
                 currentText = self.text_areas[self.current_text_area].text
