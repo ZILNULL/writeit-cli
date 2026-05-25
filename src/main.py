@@ -1,17 +1,20 @@
 from textual.app import App, ComposeResult
 
 from src.editor import Editor
-from src.textarea import TextAreaExt
 
 
 class MyApp(App):
+    def __init__(self):
+        super().__init__()
+        self.editor = Editor(id="editor")
+
     def on_mount(self):
-        startTextArea = self.query_one("#input1", TextAreaExt)
+        startTextArea = self.editor.text_areas[self.editor.current_text_area]
         startTextArea.focus()
         startTextArea.read_only = True
 
     def compose(self) -> ComposeResult:
-        yield Editor(id="editor")
+        yield self.editor
 
 
 if __name__ == "__main__":

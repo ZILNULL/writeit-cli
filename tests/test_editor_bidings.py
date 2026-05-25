@@ -1,7 +1,6 @@
 import pytest
 
 from src.main import MyApp
-from src.editor import Editor
 from src.textarea import TextAreaExt
 
 
