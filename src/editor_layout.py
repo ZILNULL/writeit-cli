@@ -35,6 +35,8 @@ class EditorLayout(Widget, can_focus=True):
 
     async def update_content(self, text_areas: list[Widget]):
         self.text_areas = text_areas
+        self.main_editor = Label("Editor goes here...")
+
         if len(self.text_areas) == 1:
             self.main_editor = self.text_areas[0]
             self.sub_editors.styles.display = "none"

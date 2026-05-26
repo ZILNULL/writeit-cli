@@ -51,29 +51,33 @@ class Editor(Widget, can_focus=True):
     async def rebuild_containers(self) -> None:
         await self.horizontal_container.update_content(self.text_areas)
 
-    def focus_area(self, index: int) -> None:
-        if len(self.text_areas) == 0:
+    def focus_area(self, index: int | None = None) -> None:
+        if len(self.text_areas) == 0 or index is None:
+            self.horizontal_container.focus()
             return
 
         self.current_text_area = index
         self.text_areas[index].read_only = True
         self.text_areas[index].focus()
 
-    def unfocus_area(self, index: int | None = None) -> None:
+    def unfocus_area(self, index: int) -> None:
         if len(self.text_areas) == 0:
             return
 
-        index = self.current_text_area if index is None else index
         self.text_areas[index].read_only = True
 
-    def insert_mode_area(self, index: int | None = None) -> None:
-        if len(self.text_areas) == 0:
-            return
+    async def delete_area(self, index: int) -> None:
+        del self.text_areas[index]
+        await self.horizontal_container.update_content(self.text_areas)
 
-        if index is not None:
-            self.focus_area(index)
+        if self.current_text_area >= len(self.text_areas):
+            if len(self.text_areas) == 0:
+                self.current_text_area = 0
+            elif self.current_text_area == len(self.text_areas):
+                self.current_text_area -= 1
 
-        index = self.current_text_area
+    def insert_mode_area(self, index: int) -> None:
+        self.focus_area(index)
         self.text_areas[index].read_only = False
 
     def change_mode(self, new_mode: str) -> bool:
@@ -87,7 +91,7 @@ class Editor(Widget, can_focus=True):
     # Actions
     # -------------------------------
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
-        if len(self.text_areas) == 0:
+        if len(self.text_areas) == 0 or self.current_text_area is None:
             not_allowed = [
                 "insert_mode",
                 "move_cursor",
@@ -109,7 +113,7 @@ class Editor(Widget, can_focus=True):
         self.change_mode("n")
 
     def action_insert_mode(self) -> None:
-        self.insert_mode_area()
+        self.insert_mode_area(self.current_text_area)
         self.change_mode("i")
 
     def action_command_mode(self) -> None:
@@ -142,7 +146,7 @@ class Editor(Widget, can_focus=True):
             return
 
         self.previous_text_area = self.current_text_area
-        self.unfocus_area()
+        self.unfocus_area(self.current_text_area)
         self.focus_area(0)
 
     def action_move_to_right_area(self) -> None:
@@ -153,14 +157,14 @@ class Editor(Widget, can_focus=True):
             self.previous_text_area if self.previous_text_area is not None else 1
         )
         self.previous_text_area = None
-        self.unfocus_area()
+        self.unfocus_area(self.current_text_area)
         self.focus_area(next_area)
 
     def action_move_to_up_area(self) -> None:
         if self.current_text_area == 1 or self.current_text_area == 0:
             return
 
-        self.unfocus_area()
+        self.unfocus_area(self.current_text_area)
         self.focus_area(self.current_text_area - 1)
 
     def action_move_to_down_area(self) -> None:
@@ -170,7 +174,7 @@ class Editor(Widget, can_focus=True):
         ):
             return
 
-        self.unfocus_area()
+        self.unfocus_area(self.current_text_area)
         self.focus_area(self.current_text_area + 1)
 
     async def action_shift_to_left_area(self) -> None:
@@ -231,14 +235,20 @@ class Editor(Widget, can_focus=True):
     # Commands
     # -------------------------------
     @on(Input.Submitted)
-    def action_command_submit(self) -> None:
+    async def action_command_submit(self) -> None:
         if self.mode != "c":
             return
 
         command = self.editor_footer.command_input.value
         match command:
             case "q":
-                self.app.exit(return_code=0)
+                if len(self.text_areas) == 0:
+                    self.app.exit(0)
+                    return
+                await self.delete_area(self.current_text_area)
+                self.editor_header.label.content = "Deleted buffer."
+            case "qa":
+                self.app.exit(0)
             case "w":
                 self.editor_footer.command_input.value = ""
                 currentTextArea = self.text_areas[self.current_text_area]
@@ -247,6 +257,8 @@ class Editor(Widget, can_focus=True):
                 )
                 currentTextArea.filename = destination
                 self.editor_header.label.content = f"Content written to {destination}"
+
+        self.action_normal_mode()
 
 
 if __name__ == "__main__":
