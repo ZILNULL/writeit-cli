@@ -1,4 +1,5 @@
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.widget import Widget
 from textual.widgets import DirectoryTree
 
@@ -6,6 +7,10 @@ from src.file_io import BASE_CONTENT_PATH
 
 
 class DirectoryWI(Widget, can_focus=True):
+    BINDINGS = [
+        Binding("r", "delete_file"),
+    ]
+
     def __init__(self, id: str | None = None):
         super().__init__(id=id)
         self.directorytree = DirectoryTree(BASE_CONTENT_PATH)
@@ -21,4 +26,7 @@ class DirectoryWI(Widget, can_focus=True):
 
     def reload(self) -> None:
         self.directorytree.reload()
+
+    def action_delete_file(self) -> None:
+        pass
 

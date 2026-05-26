@@ -59,3 +59,12 @@ def write_to_file(text: str, filename: str | None = None) -> str:
         return filename_base
     except Exception as e:
         raise Exception(e)
+
+
+def delete_file(path: Path | str) -> None:
+    try:
+        full_path = obtain_full_path(path)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+    except Exception as e:
+        raise Exception(e)
