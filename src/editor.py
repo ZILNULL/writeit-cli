@@ -8,7 +8,7 @@ from src.editor_layout import EditorLayout
 from src.footer import FooterWI
 from src.header import HeaderWI
 from src.textarea import TextAreaExt
-from src.file_io import write_to_file
+from src.file_io import obtain_full_path, write_to_file
 
 
 class Editor(Widget, can_focus=True):
@@ -239,7 +239,11 @@ class Editor(Widget, can_focus=True):
         if self.mode != "c":
             return
 
-        command = self.editor_footer.command_input.value
+        command_full = self.editor_footer.command_input.value
+        command_split = command_full.split(" ", maxsplit=1)
+        command = command_split[0]
+        args = command_split[1] if len(command_split) > 1 else None
+
         match command:
             case "q":
                 if len(self.text_areas) == 0:
@@ -252,11 +256,12 @@ class Editor(Widget, can_focus=True):
             case "w":
                 self.editor_footer.command_input.value = ""
                 currentTextArea = self.text_areas[self.current_text_area]
-                destination = write_to_file(
-                    currentTextArea.text, currentTextArea.filename
-                )
+                filename = args if args is not None else currentTextArea.filename
+                destination = write_to_file(currentTextArea.text, filename)
                 currentTextArea.filename = destination
-                self.editor_header.label.content = f"Content written to {destination}"
+                self.editor_header.label.content = (
+                    f"Content written to {obtain_full_path(destination)}"
+                )
 
         self.action_normal_mode()
 
