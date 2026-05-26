@@ -1,3 +1,4 @@
+from pathlib import Path
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -106,6 +107,21 @@ class Editor(Widget, can_focus=True):
             ]
             if action in not_allowed:
                 return False
+        if self.mode != "n":
+            not_allowed = [
+                "move_cursor",
+                "move_to_left_area",
+                "move_to_up_area",
+                "move_to_down_area",
+                "move_to_right_area",
+                "shift_to_up_area",
+                "shift_to_left_area",
+                "shift_to_right_area",
+                "shift_to_down_area",
+            ]
+            if action in not_allowed:
+                return False
+
         return True
 
     def action_normal_mode(self) -> None:
@@ -121,9 +137,16 @@ class Editor(Widget, can_focus=True):
         commandWindow.focus()
         self.change_mode("c")
 
-    async def action_new_text_area(self) -> None:
+    async def action_new_text_area(
+        self, content: str | None = None, path: Path | None = None
+    ) -> None:
         new_input = len(self.text_areas)
-        self.text_areas.append(TextAreaExt(id=f"input{new_input}"))
+        text_area = TextAreaExt(id=f"input{new_input}")
+        if content is not None and path is not None:
+            text_area.text = content
+            text_area.filename = str(path)
+
+        self.text_areas.append(text_area)
         await self.horizontal_container.update_content(self.text_areas)
         self.focus_area(new_input)
 
@@ -260,7 +283,7 @@ class Editor(Widget, can_focus=True):
                 destination = write_to_file(currentTextArea.text, filename)
                 currentTextArea.filename = destination
                 self.editor_header.label.content = (
-                    f"Content written to {obtain_full_path(destination)}"
+                    f"Content written to {str(obtain_full_path(destination))}"
                 )
 
         self.action_normal_mode()
