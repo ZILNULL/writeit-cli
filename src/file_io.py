@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -64,7 +65,17 @@ def write_to_file(text: str, filename: str | None = None) -> str:
 def delete_file(path: Path | str) -> None:
     try:
         full_path = obtain_full_path(path)
-        if os.path.exists(full_path):
+        if os.path.exists(full_path) and os.path.isdir(full_path):
+            shutil.rmtree(full_path)
+        elif os.path.exists(full_path) and os.path.isfile(full_path):
             os.remove(full_path)
+    except Exception as e:
+        raise Exception(e)
+
+
+def create_empty_file(path: Path | str, filename: str) -> None:
+    try:
+        full_path = obtain_full_path(path) / filename
+        open(full_path, "a").close()
     except Exception as e:
         raise Exception(e)
