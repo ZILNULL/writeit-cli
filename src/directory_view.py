@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.widget import Widget
 from textual.widgets import DirectoryTree
 
+from src.confirm_screen import ConfirmScreen
 from src.file_io import BASE_CONTENT_PATH, create_empty_file, delete_file
 
 
@@ -36,6 +38,18 @@ class DirectoryWI(Widget, can_focus=True):
         ):
             return
 
+        message = f"Do you want to delete the file at: {str(self.directorytree.cursor_node.data.path)}?"
+        self.app.push_screen(
+            ConfirmScreen(message, "confirm_button", self.delete_file_resolve)
+        )
+
+    def delete_file_resolve(self) -> None:
+        if (
+            self.directorytree.cursor_node is None
+            or self.directorytree.cursor_node.data is None
+        ):
+            return
+
         delete_file(self.directorytree.cursor_node.data.path)
         self.reload()
 
@@ -50,5 +64,22 @@ class DirectoryWI(Widget, can_focus=True):
         if os.path.exists(folder) and os.path.isfile(folder):
             folder = folder.parent
 
-        create_empty_file(folder, "test.md")
+        message = f"Insert name for new file at: {folder} (ESC to cancel)"
+        self.app.push_screen(
+            ConfirmScreen(
+                message,
+                "text_input",
+                self.append_file_resolve,
+                kwargs={"folder": folder},
+            )
+        )
+
+    def append_file_resolve(
+        self, folder: Path | None = None, text_input: str | None = None
+    ) -> None:
+        if folder is None:
+            return
+
+        filename = text_input if text_input is not None else "newfile.md"
+        create_empty_file(folder, filename)
         self.reload()

@@ -40,7 +40,7 @@ class Editor(Widget, can_focus=True):
         self.previous_text_area = None
 
         self.editor_header = HeaderWI()
-        self.text_areas = [TextAreaExt(id="input0")]
+        self.text_areas = [TextAreaExt()]
         self.editor_footer = FooterWI()
         self.horizontal_container = EditorLayout(self.text_areas)
 
@@ -141,7 +141,7 @@ class Editor(Widget, can_focus=True):
         self, content: str | None = None, path: Path | None = None
     ) -> None:
         new_input = len(self.text_areas)
-        text_area = TextAreaExt(id=f"input{new_input}")
+        text_area = TextAreaExt()
         if content is not None and path is not None:
             text_area.text = content
             text_area.filename = str(path)
@@ -267,22 +267,22 @@ class Editor(Widget, can_focus=True):
         command = command_split[0]
         args = command_split[1] if len(command_split) > 1 else None
 
+        self.editor_footer.command_input.value = ""
         match command:
             case "q":
                 if len(self.text_areas) == 0:
                     self.app.exit(0)
                     return
                 await self.delete_area(self.current_text_area)
-                self.editor_header.label.content = "Deleted buffer."
+                self.editor_footer.system_messages.content = "Deleted buffer."
             case "qa":
                 self.app.exit(0)
             case "w":
-                self.editor_footer.command_input.value = ""
                 currentTextArea = self.text_areas[self.current_text_area]
                 filename = args if args is not None else currentTextArea.filename
                 destination = write_to_file(currentTextArea.text, filename)
                 currentTextArea.filename = destination
-                self.editor_header.label.content = (
+                self.editor_footer.system_messages.content = (
                     f"Content written to {str(obtain_full_path(destination))}"
                 )
 

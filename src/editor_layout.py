@@ -3,9 +3,17 @@ from textual.containers import Horizontal, VerticalScroll
 from textual.widget import Widget
 from textual.widgets import Label
 
+from src.textarea import TextAreaExt
+
 
 class EditorLayout(Widget, can_focus=True):
     DEFAULT_CSS = """
+    EditorLayout Label {
+        width: 100%;
+        height: 100%;
+        content-align-horizontal: center;
+        content-align-vertical: middle;
+    }
     VerticalScroll {
         display: none;
     }
@@ -33,7 +41,7 @@ class EditorLayout(Widget, can_focus=True):
     def compose(self) -> ComposeResult:
         yield self.layout_container
 
-    async def update_content(self, text_areas: list[Widget]):
+    async def update_content(self, text_areas: list[TextAreaExt]):
         self.text_areas = text_areas
         self.main_editor = Label("Editor goes here...")
 

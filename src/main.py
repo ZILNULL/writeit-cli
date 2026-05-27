@@ -1,9 +1,11 @@
+from collections.abc import Callable
 import sys
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import DirectoryTree
 
+from src.confirm_screen import ConfirmScreen
 from src.directory_view import DirectoryWI
 from src.editor import Editor
 from src.file_io import (
@@ -21,6 +23,10 @@ class MyApp(App):
     ]
 
     DEFAULT_CSS = """
+    App {
+        background: darkblue;
+    }
+
     #directory {
         dock: left;
         width: 25%;
@@ -39,6 +45,16 @@ class MyApp(App):
     def compose(self) -> ComposeResult:
         yield self.editor
         yield self.directory
+
+    def add_confirm_window(
+        self,
+        message: str,
+        type_confirm: str,
+        function: Callable,
+        args: list = [],
+        kwargs: dict = {},
+    ) -> None:
+        self.push_screen(ConfirmScreen(message, type_confirm, function, args, kwargs))
 
     # ----------------------------------------
     # Actions

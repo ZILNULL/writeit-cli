@@ -7,6 +7,16 @@ class TextAreaExt(TextArea):
         Binding("tab", "insert_tab"),
     ]
 
+    DEFAULT_CSS = """
+    TextAreaExt {
+        border: round #C1C6C7;
+    }
+
+    TextAreaExt:focus {
+        border: round #70FFD9;
+    }
+    """
+
     def __init__(self, id: str | None = None, filename: str | None = None):
         super().__init__(id=id)
         self.language = "markdown"
